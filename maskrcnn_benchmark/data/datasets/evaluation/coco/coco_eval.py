@@ -379,7 +379,7 @@ class COCOResults(object):
         metrics = COCOResults.METRICS[iou_type]
 
         # if current eval is single catId, add to results
-        if catIds.length is 1:
+        if len(catIds) is 1:
             res[catIds[0]] = {}
             for idx, metric in enumerate(metrics):
                 res[catIds[0]][metric] = s[idx]
