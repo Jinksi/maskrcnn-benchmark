@@ -61,6 +61,7 @@ def do_coco_evaluation(
                 res = evaluate_predictions_on_coco(
                     dataset.coco, coco_results[iou_type], file_path, iou_type, catId
                 )
+                results.update(res)
             res = evaluate_predictions_on_coco(
                 dataset.coco, coco_results[iou_type], file_path, iou_type
             )
@@ -375,11 +376,11 @@ class COCOResults(object):
         iou_type = coco_eval.params.iouType
         # if catIds, add to results
         catIds = coco_eval.params.catIds
-        print(catIds)
         res = self.results[iou_type]
         metrics = COCOResults.METRICS[iou_type]
         for idx, metric in enumerate(metrics):
             res[metric] = s[idx]
+            res["catIds"] = catIds
 
     def __repr__(self):
         # TODO make it pretty
