@@ -57,7 +57,7 @@ def do_coco_evaluation(
             if output_folder:
                 file_path = os.path.join(output_folder, iou_type + ".json")
 
-            for catId in coco_gt.getCatIds():
+            for catId in dataset.coco.getCatIds():
                 res = evaluate_predictions_on_coco(
                     dataset.coco, coco_results[iou_type], file_path, iou_type, catId
                 )
