@@ -374,13 +374,18 @@ class COCOResults(object):
         assert isinstance(coco_eval, COCOeval)
         s = coco_eval.stats
         iou_type = coco_eval.params.iouType
-        # if catIds, add to results
         catIds = coco_eval.params.catIds
         res = self.results[iou_type]
         metrics = COCOResults.METRICS[iou_type]
-        for idx, metric in enumerate(metrics):
-            res[metric] = s[idx]
-            res["catIds"] = catIds
+
+        # if current eval is single catId, add to results
+        if catIds.length is 1:
+            res[catIds[0]] = {}
+            for idx, metric in enumerate(metrics):
+                res[catIds[0]][metric] = s[idx]
+        else:
+            for idx, metric in enumerate(metrics):
+                res[metric] = s[idx]
 
     def __repr__(self):
         # TODO make it pretty
