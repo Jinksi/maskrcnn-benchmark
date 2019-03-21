@@ -45,9 +45,9 @@ def do_coco_evaluation(
     if "segm" in iou_types:
         logger.info("Preparing segm results")
         coco_results["segm"] = prepare_for_coco_segmentation(predictions, dataset)
-    if 'keypoints' in iou_types:
-        logger.info('Preparing keypoints results')
-        coco_results['keypoints'] = prepare_for_coco_keypoint(predictions, dataset)
+    if "keypoints" in iou_types:
+        logger.info("Preparing keypoints results")
+        coco_results["keypoints"] = prepare_for_coco_keypoint(predictions, dataset)
 
     results = COCOResults(*iou_types)
     logger.info("Evaluating predictions")
@@ -56,7 +56,7 @@ def do_coco_evaluation(
             file_path = f.name
             if output_folder:
                 file_path = os.path.join(output_folder, iou_type + ".json")
-            
+
             for catId in coco_gt.getCatIds():
                 res = evaluate_predictions_on_coco(
                     dataset.coco, coco_results[iou_type], file_path, iou_type, catId
@@ -169,26 +169,33 @@ def prepare_for_coco_keypoint(predictions, dataset):
             continue
 
         # TODO replace with get_img_info?
-        image_width = dataset.coco.imgs[original_id]['width']
-        image_height = dataset.coco.imgs[original_id]['height']
+        image_width = dataset.coco.imgs[original_id]["width"]
+        image_height = dataset.coco.imgs[original_id]["height"]
         prediction = prediction.resize((image_width, image_height))
-        prediction = prediction.convert('xywh')
+        prediction = prediction.convert("xywh")
 
         boxes = prediction.bbox.tolist()
-        scores = prediction.get_field('scores').tolist()
-        labels = prediction.get_field('labels').tolist()
-        keypoints = prediction.get_field('keypoints')
+        scores = prediction.get_field("scores").tolist()
+        labels = prediction.get_field("labels").tolist()
+        keypoints = prediction.get_field("keypoints")
         keypoints = keypoints.resize((image_width, image_height))
         keypoints = keypoints.keypoints.view(keypoints.keypoints.shape[0], -1).tolist()
 
         mapped_labels = [dataset.contiguous_category_id_to_json_id[i] for i in labels]
 
-        coco_results.extend([{
-            'image_id': original_id,
-            'category_id': mapped_labels[k],
-            'keypoints': keypoint,
-            'score': scores[k]} for k, keypoint in enumerate(keypoints)])
+        coco_results.extend(
+            [
+                {
+                    "image_id": original_id,
+                    "category_id": mapped_labels[k],
+                    "keypoints": keypoint,
+                    "score": scores[k],
+                }
+                for k, keypoint in enumerate(keypoints)
+            ]
+        )
     return coco_results
+
 
 # inspired from Detectron
 def evaluate_box_proposals(
@@ -308,7 +315,7 @@ def evaluate_box_proposals(
 
 
 def evaluate_predictions_on_coco(
-    coco_gt, coco_results, json_result_file, iou_type="bbox", catId
+    coco_gt, coco_results, json_result_file, iou_type="bbox", catId=None
 ):
     import json
 
@@ -321,9 +328,10 @@ def evaluate_predictions_on_coco(
     coco_dt = coco_gt.loadRes(str(json_result_file)) if coco_results else COCO()
 
     # coco_dt = coco_gt.loadRes(coco_results)
-    
+
     coco_eval = COCOeval(coco_gt, coco_dt, iou_type)
-    if catId: coco_eval.params.catIds = [catId]
+    if catId:
+        coco_eval.params.catIds = [catId]
     coco_eval.evaluate()
     coco_eval.accumulate()
     coco_eval.summarize()
