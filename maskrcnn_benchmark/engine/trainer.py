@@ -130,6 +130,7 @@ def do_train(
         ):
             meters_val = MetricLogger(delimiter="  ")
             synchronize()
+            output_folder = os.path.join(cfg.OUTPUT_DIR, "validation", iteration)
             _ = inference(  # The result can be used for additional logging, e. g. for TensorBoard
                 model,
                 # The method changes the segmentation mask format in a data loader,
@@ -146,7 +147,7 @@ def do_train(
                 device=cfg.MODEL.DEVICE,
                 expected_results=cfg.TEST.EXPECTED_RESULTS,
                 expected_results_sigma_tol=cfg.TEST.EXPECTED_RESULTS_SIGMA_TOL,
-                output_folder=None,
+                output_folder=output_folder,
             )
             synchronize()
             model.train()
