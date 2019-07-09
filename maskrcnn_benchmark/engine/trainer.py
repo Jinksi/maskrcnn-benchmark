@@ -131,7 +131,7 @@ def do_train(
             meters_val = MetricLogger(delimiter="  ")
             synchronize()
             output_folder = os.path.join(cfg.OUTPUT_DIR, "validation", str(iteration))
-            os.makedirs(output_folder. exist_ok=True)
+            os.makedirs(output_folder, exist_ok=True)
             _ = inference(  # The result can be used for additional logging, e. g. for TensorBoard
                 model,
                 # The method changes the segmentation mask format in a data loader,
