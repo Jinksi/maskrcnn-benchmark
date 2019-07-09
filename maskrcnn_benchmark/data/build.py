@@ -154,7 +154,7 @@ def make_data_loader(
 
     transforms = build_transforms(cfg, is_train)
     datasets = build_dataset(
-        dataset_list, transforms, DatasetCatalog, is_trainis_train or is_for_period
+        dataset_list, transforms, DatasetCatalog, is_train or is_for_period
     )
 
     data_loaders = []
