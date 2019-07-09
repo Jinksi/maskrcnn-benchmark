@@ -22,8 +22,9 @@ dist/
 *.swp
 *~
 
-# Pycharm editor settings
+# Editor settings
 .idea
+.vscode
 
 # project dirs
 /datasets
