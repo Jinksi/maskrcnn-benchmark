@@ -36,7 +36,9 @@ def train(cfg, local_rank, distributed):
 
     if distributed:
         model = torch.nn.parallel.DistributedDataParallel(
-            model, device_ids=[local_rank], output_device=local_rank,
+            model,
+            device_ids=[local_rank],
+            output_device=local_rank,
             # this should be removed if we update BatchNorm stats
             broadcast_buffers=False,
         )
@@ -60,16 +62,27 @@ def train(cfg, local_rank, distributed):
         start_iter=arguments["iteration"],
     )
 
+    test_period = cfg.SOLVER.TEST_PERIOD
+    if test_period > 0:
+        data_loader_val = make_data_loader(
+            cfg, is_train=False, is_distributed=distributed, is_for_period=True
+        )
+    else:
+        data_loader_val = None
+
     checkpoint_period = cfg.SOLVER.CHECKPOINT_PERIOD
 
     do_train(
+        cfg,
         model,
         data_loader,
+        data_loader_val,
         optimizer,
         scheduler,
         checkpointer,
         device,
         checkpoint_period,
+        test_period,
         arguments,
     )
 
@@ -93,7 +106,9 @@ def run_test(cfg, model, distributed):
             mkdir(output_folder)
             output_folders[idx] = output_folder
     data_loaders_val = make_data_loader(cfg, is_train=False, is_distributed=distributed)
-    for output_folder, dataset_name, data_loader_val in zip(output_folders, dataset_names, data_loaders_val):
+    for output_folder, dataset_name, data_loader_val in zip(
+        output_folders, dataset_names, data_loaders_val
+    ):
         inference(
             model,
             data_loader_val,
@@ -138,9 +153,7 @@ def main():
 
     if args.distributed:
         torch.cuda.set_device(args.local_rank)
-        torch.distributed.init_process_group(
-            backend="nccl", init_method="env://"
-        )
+        torch.distributed.init_process_group(backend="nccl", init_method="env://")
         synchronize()
 
     cfg.merge_from_file(args.config_file)
