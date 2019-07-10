@@ -26,7 +26,7 @@ from maskrcnn_benchmark.utils.logger import setup_logger
 from maskrcnn_benchmark.utils.miscellaneous import mkdir
 
 
-def train(cfg, local_rank, distributed, running_evaluation):
+def train(cfg, local_rank, distributed):
     model = build_detection_model(cfg)
     device = torch.device(cfg.MODEL.DEVICE)
     model.to(device)
@@ -63,9 +63,7 @@ def train(cfg, local_rank, distributed, running_evaluation):
     )
 
     test_period = cfg.SOLVER.TEST_PERIOD
-    print("running_evaluation")
-    print(running_evaluation)
-    if test_period > 0 and not running_evaluation:
+    if test_period > 0:
         data_loader_val = make_data_loader(
             cfg, is_train=False, is_distributed=distributed, is_for_period=True
         )
@@ -150,7 +148,6 @@ def main():
         default=None,
         nargs=argparse.REMAINDER,
     )
-    parser.add_argument("--running_evaluation", default=None)
 
     args = parser.parse_args()
 
@@ -183,7 +180,7 @@ def main():
         logger.info(config_str)
     logger.info("Running with config:\n{}".format(cfg))
 
-    model = train(cfg, args.local_rank, args.distributed, args.running_evaluation)
+    model = train(cfg, args.local_rank, args.distributed)
 
     if not args.skip_test:
         run_test(cfg, model, args.distributed)
