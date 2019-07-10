@@ -151,6 +151,7 @@ def do_train(
                 output_folder=output_folder,
             )
             synchronize()
+            print("model.train()")
             model.train()
             with torch.no_grad():
                 # Should be one image for each GPU:
