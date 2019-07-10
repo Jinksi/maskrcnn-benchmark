@@ -72,6 +72,9 @@ def train(cfg, local_rank, distributed):
 
     checkpoint_period = cfg.SOLVER.CHECKPOINT_PERIOD
 
+    print("data_loader_val")
+    print(data_loader_val)
+
     do_train(
         cfg,
         model,
