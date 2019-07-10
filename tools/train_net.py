@@ -63,6 +63,8 @@ def train(cfg, local_rank, distributed, running_evaluation):
     )
 
     test_period = cfg.SOLVER.TEST_PERIOD
+    print("running_evaluation")
+    print(running_evaluation)
     if test_period > 0 and not running_evaluation:
         data_loader_val = make_data_loader(
             cfg, is_train=False, is_distributed=distributed, is_for_period=True
